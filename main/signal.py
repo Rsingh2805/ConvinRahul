@@ -22,14 +22,20 @@ def long_func(instance):
 
 @receiver(post_save, sender=DataModel)
 def updated_created(sender, instance, **kwargs):
-    if instance.tracker.has_changed('file'):
+    if instance.tracker.previous('file') is None:
+        f = open(LOGGING_FILE, 'a')
+        f.write(str(datetime.datetime.now()) + ": DataModel for ID " + str(instance.pk) + " created" + "\n")
+        f.close()
+        x = threading.Thread(target=long_func, args=(instance,), daemon=True)
+        x.start()
+    elif instance.tracker.has_changed('file'):
         f = open(LOGGING_FILE, 'a')
         f.write(str(datetime.datetime.now()) + ": File field for ID " + str(instance.pk) + " changed from " +
                 instance.tracker.previous('file').name + " to " + instance.file.name + "\n")
         f.close()
         x = threading.Thread(target=long_func, args=(instance, ), daemon=True)
         x.start()
-    if instance.tracker.has_changed('encrypted'):
+    elif instance.tracker.has_changed('encrypted'):
         f = open(LOGGING_FILE, 'a')
         f.write(str(datetime.datetime.now()) + ": Encrypted field for ID " + str(instance.pk) + " changed from " +
                 instance.tracker.previous('encrypted') + " to " + instance.encrypted + "\n")

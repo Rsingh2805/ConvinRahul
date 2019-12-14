@@ -4,7 +4,7 @@ from .models import DataModel
 
 
 class DataModelAdmin(admin.ModelAdmin):
-    exclude = ('encrypted',)
+    exclude = ()
 
 
 admin.site.register(DataModel, DataModelAdmin)
